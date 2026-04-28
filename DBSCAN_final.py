@@ -10,14 +10,14 @@ import serial
 import time
 import re
 
-# 计算eps参数
+# Calculate eps parameter
 def estimate_eps(data, k=5):
     neighbors = NearestNeighbors(n_neighbors=k)
     neighbors_fit = neighbors.fit(data)
     distances, _ = neighbors_fit.kneighbors(data)
     return np.mean(distances[:, k-1])
 
-# 计算压力质心
+# Calculate pressure centroid
 def calculate_centroid(points):
     weights = points[:, 2]
     sum_weighted_x = np.sum(points[:, 0] * weights)
@@ -49,18 +49,18 @@ def update(frame):
     points = np.vstack((xx, yy, current_z)).T
     center = calculate_centroid(points)
     
-    # 状态识别
-    jiaozhang = '全脚掌'
-    if center[1] > 14: jiaozhang = '后脚掌'
-    elif center[1] < 8: jiaozhang = '前脚掌'
+    # State recognition
+    jiaozhang = 'Full foot'
+    if center[1] > 14: jiaozhang = 'Heel'
+    elif center[1] < 8: jiaozhang = 'Forefoot'
     
-    # DBSCAN聚类去噪
+    # DBSCAN clustering for denoising
     scaler = StandardScaler()
     points_normalized = scaler.fit_transform(points)
     dbscan = DBSCAN(eps=estimate_eps(points_normalized), min_samples=6)
     labels = dbscan.fit_predict(points_normalized)
     
-    # 计算有效信号总和
+    # Calculate valid signal sum
     signal_sum = sum(current_z[i] for i, label in enumerate(labels) if label != -1)
     signal_t.append(signal_sum)
     

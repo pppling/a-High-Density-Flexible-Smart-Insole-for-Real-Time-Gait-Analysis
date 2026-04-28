@@ -13,23 +13,23 @@ def lowpass_filter(data, cutoff_frequency, fs, order=5):
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     return filtfilt(b, a, data)
 
-# 读取并处理信号
+# Read and process signal
 df = pd.read_excel('output.xlsx', usecols=['A'])
 signal = df['A'].values
 diff_sig = [signal[i+1] - signal[i] for i in range(len(signal)-1)]
 
-dt = 0.050  # 采样间隔50ms
-fs = 1/dt   # 采样频率20Hz
+dt = 0.050  # Sampling interval 50ms
+fs = 1/dt   # Sampling frequency 20Hz
 t = np.arange(0, len(diff_sig)*dt, dt) + dt
 
-# 低通滤波（截止频率2Hz）
+# Low-pass filter (cutoff frequency 2Hz)
 cutoff_frequency = 2
 filtered_sig = lowpass_filter(diff_sig, cutoff_frequency, fs)
 
 plt.figure(figsize=(10, 6))
-plt.plot(t, diff_sig, label='原始差分信号', alpha=0.5)
-plt.plot(t, filtered_sig, label='滤波后信号', linewidth=2)
-plt.xlabel('时间 (s)')
-plt.ylabel('压力变化率')
+plt.plot(t, diff_sig, label='Original differential signal', alpha=0.5)
+plt.plot(t, filtered_sig, label='Filtered signal', linewidth=2)
+plt.xlabel('Time (s)')
+plt.ylabel('Pressure change rate')
 plt.legend()
 plt.show()
